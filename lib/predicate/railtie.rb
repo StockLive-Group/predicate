@@ -2,9 +2,10 @@
 
 module Predicate
   class Railtie < Rails::Railtie
-    initializer 'predicate.configure_rails' do |app|
-      # Add app/predicates to the autoload paths
-      app.config.autoload_paths << Rails.root.join('app', 'predicates')
+    # Add app/predicates to autoload paths before configuration is finalized
+    config.before_configuration do |app|
+      predicates_path = Rails.root.join('app', 'predicates')
+      app.config.autoload_paths << predicates_path if Dir.exist?(predicates_path)
     end
 
     config.to_prepare do
