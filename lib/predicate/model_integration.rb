@@ -26,9 +26,13 @@ module Predicate
   # @author Nauman Tariq
   # @version 1.0.0
   module ModelIntegration
-    # Include class methods directly since we can't rely on ActiveSupport::Concern
+    # Include class methods and auto-load predicates from app/predicates/.
+    # Models only need a single line: +include Predicate::ModelIntegration+
+    # The predicate file is resolved by convention from the model name
+    # (e.g. +LivestockType+ loads +app/predicates/livestock_type_predicate.rb+).
     def self.included(base)
       base.extend(ClassMethods)
+      base.load_predicates!
     end
 
     # CLASS METHODS
