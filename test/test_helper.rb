@@ -194,10 +194,10 @@ module Predicate
         end
 
         # Add common methods
-        state.define_singleton_method(:present?) do |val|
+        state.define_singleton_method(:is_present?) do |val|
           !val.nil? && !(val.respond_to?(:empty?) && val.empty?)
         end
-        state.define_singleton_method(:blank?) do |val|
+        state.define_singleton_method(:is_blank?) do |val|
           val.nil? || (val.respond_to?(:empty?) && val.empty?)
         end
         state.define_singleton_method(:empty?) { |val| val.respond_to?(:empty?) && val.empty? }

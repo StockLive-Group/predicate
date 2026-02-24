@@ -25,7 +25,7 @@ class ForceReloadTest < Minitest::Test
   def test_force_reload_gets_updated_predicates_from_registry
     # Define initial predicates
     Predicate.define(:test_model) do
-      has_title { |s| present?(s[:title]) }
+      has_title { |s| is_present?(s[:title]) }
     end
 
     model_class = Class.new do
@@ -50,8 +50,8 @@ class ForceReloadTest < Minitest::Test
 
     # Redefine predicates in registry (simulating file change + reload)
     Predicate.define(:test_model) do
-      has_title { |s| present?(s[:title]) }
-      has_description { |s| present?(s[:description]) } # New predicate!
+      has_title { |s| is_present?(s[:title]) }
+      has_description { |s| is_present?(s[:description]) } # New predicate!
     end
 
     # Load WITHOUT force_reload - BUG: should return cached @predicate_instance
@@ -116,7 +116,7 @@ class ForceReloadTest < Minitest::Test
   # Test that without force_reload, returns cached instance
   def test_without_force_reload_returns_cached_instance
     Predicate.define(:test_model) do
-      has_title { |s| present?(s[:title]) }
+      has_title { |s| is_present?(s[:title]) }
     end
 
     model_class = Class.new do
@@ -148,7 +148,7 @@ class ForceReloadTest < Minitest::Test
   # Test that force_reload works when no instance cached yet
   def test_force_reload_works_on_first_load
     Predicate.define(:test_model) do
-      has_title { |s| present?(s[:title]) }
+      has_title { |s| is_present?(s[:title]) }
     end
 
     model_class = Class.new do

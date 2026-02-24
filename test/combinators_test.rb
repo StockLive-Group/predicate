@@ -23,9 +23,9 @@ class CombinatorsTest < Minitest::Test
   # Test ALL_OF combinator (logical AND)
   def test_all_of_combinator
     predicates = Predicate.define(@entity) do
-      has_title { |s| present?(s[:title]) }
-      has_description { |s| present?(s[:description]) }
-      has_media { |s| present?(s[:media_attachment_ids]) }
+      has_title { |s| is_present?(s[:title]) }
+      has_description { |s| is_present?(s[:description]) }
+      has_media { |s| is_present?(s[:media_attachment_ids]) }
 
       content_complete { |s| all_of(:has_title, :has_description).call(s) }
       all_complete { |s| all_of(:has_title, :has_description, :has_media).call(s) }
@@ -61,9 +61,9 @@ class CombinatorsTest < Minitest::Test
   # Test ANY_OF combinator (logical OR)
   def test_any_of_combinator
     predicates = Predicate.define(@entity) do
-      has_title { |s| present?(s[:title]) }
-      has_description { |s| present?(s[:description]) }
-      has_media { |s| present?(s[:media_attachment_ids]) }
+      has_title { |s| is_present?(s[:title]) }
+      has_description { |s| is_present?(s[:description]) }
+      has_media { |s| is_present?(s[:media_attachment_ids]) }
 
       has_content { |s| any_of(:has_title, :has_description).call(s) }
       has_anything { |s| any_of(:has_title, :has_description, :has_media).call(s) }
@@ -94,7 +94,7 @@ class CombinatorsTest < Minitest::Test
   # Test NONE_OF combinator (logical NOR)
   def test_none_of_combinator
     predicates = Predicate.define(@entity) do
-      has_errors { |s| present?(s[:errors]) }
+      has_errors { |s| is_present?(s[:errors]) }
       is_invalid { |s| s[:valid] == false }
       is_expired { |s| s[:expired] == true }
 
@@ -120,7 +120,7 @@ class CombinatorsTest < Minitest::Test
   # Test NOT combinator (logical NOT)
   def test_not_combinator
     predicates = Predicate.define(@entity) do
-      has_errors { |s| present?(s[:errors]) && !s[:errors].empty? }
+      has_errors { |s| is_present?(s[:errors]) && !s[:errors].empty? }
       is_valid { |s| s[:valid] == true }
 
       no_errors { |s| negate(:has_errors).call(s) }
@@ -190,12 +190,12 @@ class CombinatorsTest < Minitest::Test
     predicates = Predicate.define(@entity) do
       default_title_check do |s|
         when_blank(:title) do |state|
-          present?(state[:default_title])
+          is_present?(state[:default_title])
         end.call(s)
       end
       fallback_description_check do |s|
         when_blank(:description, default_value: true) do |state|
-          present?(state[:fallback_description])
+          is_present?(state[:fallback_description])
         end.call(s)
       end
     end
@@ -226,10 +226,10 @@ class CombinatorsTest < Minitest::Test
   # Test complex combinator combinations
   def test_complex_combinator_combinations
     predicates = Predicate.define(@entity) do
-      has_title { |s| present?(s[:title]) }
-      has_description { |s| present?(s[:description]) }
-      has_media { |s| present?(s[:media_attachment_ids]) }
-      has_tags { |s| present?(s[:tags]) && has_elements?(s[:tags]) }
+      has_title { |s| is_present?(s[:title]) }
+      has_description { |s| is_present?(s[:description]) }
+      has_media { |s| is_present?(s[:media_attachment_ids]) }
+      has_tags { |s| is_present?(s[:tags]) && has_elements?(s[:tags]) }
       is_published { |s| s[:published] == true }
       is_valid { |s| s[:valid] == true }
 
@@ -247,7 +247,7 @@ class CombinatorsTest < Minitest::Test
       content_requirement do |s|
         any_of(
           when_present(:title) { |state| min_length?(state[:title], 5) },
-          when_blank(:title) { |state| present?(state[:description]) }
+          when_blank(:title) { |state| is_present?(state[:description]) }
         ).call(s)
       end
     end
@@ -307,7 +307,7 @@ class CombinatorsTest < Minitest::Test
   def test_error_handling_in_combinators
     predicates = Predicate.define(@entity) do
       error_predicate { |_s| raise StandardError, 'Test error' }
-      safe_predicate { |s| present?(s[:value]) }
+      safe_predicate { |s| is_present?(s[:value]) }
 
       all_with_error { |s| all_of(:safe_predicate, :error_predicate).call(s) }
       any_with_error { |s| any_of(:error_predicate, :safe_predicate).call(s) }
@@ -333,10 +333,10 @@ class CombinatorsTest < Minitest::Test
     predicates = Predicate.define(@entity) do
       expensive_predicate do |s|
         call_count += 1
-        present?(s[:value])
+        is_present?(s[:value])
       end
 
-      cheap_predicate { |s| present?(s[:other_value]) }
+      cheap_predicate { |s| is_present?(s[:other_value]) }
 
       combined_check { |s| all_of(:expensive_predicate, :cheap_predicate).call(s) }
     end

@@ -30,7 +30,7 @@ class ForceReloadFileTest < Minitest::Test
     # Write initial predicate file
     File.write(@predicate_file, <<~RUBY)
       Predicate.define(:test_model) do
-        has_title { |s| present?(s[:title]) }
+        has_title { |s| is_present?(s[:title]) }
       end
     RUBY
 
@@ -62,8 +62,8 @@ class ForceReloadFileTest < Minitest::Test
     # Now UPDATE the file (simulating developer editing file)
     File.write(@predicate_file, <<~RUBY)
       Predicate.define(:test_model) do
-        has_title { |s| present?(s[:title]) }
-        has_description { |s| present?(s[:description]) }  # NEW!
+        has_title { |s| is_present?(s[:title]) }
+        has_description { |s| is_present?(s[:description]) }  # NEW!
       end
     RUBY
 

@@ -47,9 +47,6 @@ class ValidationHelpersBugTest < Minitest::Test
       end
     end
 
-    # Load predicates
-    model_class.load_predicates!
-
     # Create instance with title
     model = model_class.new(title: 'Test Title')
 
@@ -88,8 +85,6 @@ class ValidationHelpersBugTest < Minitest::Test
       end
     end
 
-    model_class.load_predicates!
-
     valid_model = model_class.new('test@example.com')
     assert valid_model.valid_email_format?, 'valid_email_format? should return true for valid email'
 
@@ -121,8 +116,6 @@ class ValidationHelpersBugTest < Minitest::Test
         @name = name
       end
     end
-
-    model_class.load_predicates!
 
     valid_model = model_class.new('John')
     assert valid_model.valid_name_length?, 'valid_name_length? should return true for valid length'
@@ -157,8 +150,6 @@ class ValidationHelpersBugTest < Minitest::Test
         @age = age
       end
     end
-
-    model_class.load_predicates!
 
     valid_model = model_class.new(25)
     assert valid_model.valid_age?, 'valid_age? should return true for valid number'

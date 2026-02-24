@@ -23,8 +23,8 @@ class DSLTest < Minitest::Test
   # Test basic DSL functionality
   def test_define_predicates_with_dsl
     predicates = Predicate.define(@entity) do
-      has_media { |s| present?(s[:media_attachment_ids]) }
-      has_title { |s| present?(s[:title]) }
+      has_media { |s| is_present?(s[:media_attachment_ids]) }
+      has_title { |s| is_present?(s[:title]) }
       wizard_complete { |s| has_media(s) && has_title(s) }
     end
 
@@ -37,8 +37,8 @@ class DSLTest < Minitest::Test
 
   def test_define_predicates_with_false_conditions
     predicates = Predicate.define(@entity) do
-      has_media { |s| present?(s[:media_attachment_ids]) }
-      has_title { |s| present?(s[:title]) }
+      has_media { |s| is_present?(s[:media_attachment_ids]) }
+      has_title { |s| is_present?(s[:title]) }
     end
 
     state_no_media = test_state(media_attachment_ids: [], title: 'Test Title')
@@ -52,13 +52,13 @@ class DSLTest < Minitest::Test
   def test_section_predicates
     predicates = Predicate.define(@entity) do
       section :media do
-        has_images { |s| present?(s[:media_attachment_ids]) }
+        has_images { |s| is_present?(s[:media_attachment_ids]) }
         has_minimum_count { |s| s[:media_attachment_ids].length >= 2 }
         media_complete { |s| has_images(s) && has_minimum_count(s) }
       end
 
       section :validation do
-        required_fields { |s| present?(s[:name]) && present?(s[:email]) }
+        required_fields { |s| is_present?(s[:name]) && is_present?(s[:email]) }
         valid_email { |s| matches?(s[:email], /\A[\w+\-.]+@[a-z\d\-]+(\.[a-z\d\-]+)*\.[a-z]+\z/i) }
       end
     end
@@ -77,7 +77,7 @@ class DSLTest < Minitest::Test
   def test_section_predicates_with_false_conditions
     predicates = Predicate.define(@entity) do
       section :validation do
-        required_fields { |s| present?(s[:name]) && present?(s[:email]) }
+        required_fields { |s| is_present?(s[:name]) && is_present?(s[:email]) }
         valid_email { |s| matches?(s[:email], /\A[\w+\-.]+@[a-z\d\-]+(\.[a-z\d\-]+)*\.[a-z]+\z/i) }
       end
     end
@@ -92,9 +92,9 @@ class DSLTest < Minitest::Test
   # Test cross-predicate calling
   def test_cross_predicate_calling
     predicates = Predicate.define(@entity) do
-      has_media { |s| present?(s[:media_attachment_ids]) }
-      has_title { |s| present?(s[:title]) }
-      has_description { |s| present?(s[:description]) }
+      has_media { |s| is_present?(s[:media_attachment_ids]) }
+      has_title { |s| is_present?(s[:title]) }
+      has_description { |s| is_present?(s[:description]) }
 
       media_complete { |s| has_media(s) }
       content_complete { |s| has_title(s) && has_description(s) }
@@ -209,7 +209,7 @@ class DSLTest < Minitest::Test
   def test_error_handling_in_dsl
     predicates = Predicate.define(@entity) do
       error_predicate { |_s| raise StandardError, 'Test error' }
-      safe_predicate { |s| present?(s[:value]) }
+      safe_predicate { |s| is_present?(s[:value]) }
     end
 
     state = test_state(value: 'test')
@@ -224,7 +224,7 @@ class DSLTest < Minitest::Test
   # Test predicate registration with registry
   def test_predicate_registration_with_registry
     predicates = Predicate.define(@entity) do
-      test_predicate { |s| present?(s[:value]) }
+      test_predicate { |s| is_present?(s[:value]) }
     end
 
     # Should be registered in global registry
@@ -239,10 +239,10 @@ class DSLTest < Minitest::Test
   def test_complex_predicate_combinations
     predicates = Predicate.define(@entity) do
       # Basic predicates
-      has_media { |s| present?(s[:media_attachment_ids]) && !s[:media_attachment_ids].empty? }
-      has_title { |s| present?(s[:title]) && min_length?(s[:title], 3) }
-      has_description { |s| present?(s[:description]) && min_length?(s[:description], 10) }
-      has_tags { |s| present?(s[:tags]) && has_elements?(s[:tags]) }
+      has_media { |s| is_present?(s[:media_attachment_ids]) && !s[:media_attachment_ids].empty? }
+      has_title { |s| is_present?(s[:title]) && min_length?(s[:title], 3) }
+      has_description { |s| is_present?(s[:description]) && min_length?(s[:description], 10) }
+      has_tags { |s| is_present?(s[:tags]) && has_elements?(s[:tags]) }
 
       # Intermediate predicates
       content_ready { |s| has_title(s) && has_description(s) }
@@ -288,7 +288,7 @@ class DSLTest < Minitest::Test
     predicates = Predicate.define(@entity) do
       expensive_predicate do |s|
         call_count += 1
-        present?(s[:value])
+        is_present?(s[:value])
       end
     end
 

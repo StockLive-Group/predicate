@@ -40,7 +40,7 @@ class ModelNameHandlingTest < Minitest::Test
 
     # Define predicates for this model
     Predicate.define(:test_model) do
-      has_title { |s| present?(s[:title]) }
+      has_title { |s| is_present?(s[:title]) }
     end
 
     # This should work without crashing
@@ -65,7 +65,7 @@ class ModelNameHandlingTest < Minitest::Test
     end
 
     Predicate.define(:test_model) do
-      has_title { |s| present?(s[:title]) }
+      has_title { |s| is_present?(s[:title]) }
     end
 
     result = model_class.load_predicates!
@@ -94,7 +94,7 @@ class ModelNameHandlingTest < Minitest::Test
     end
 
     Predicate.define(:test_model) do
-      has_title { |s| present?(s[:title]) }
+      has_title { |s| is_present?(s[:title]) }
     end
 
     result = model_class.load_predicates!
@@ -118,7 +118,7 @@ class ModelNameHandlingTest < Minitest::Test
     end
 
     Predicate.define(:test_model) do
-      has_title { |s| present?(s[:title]) }
+      has_title { |s| is_present?(s[:title]) }
     end
 
     result = model_class.load_predicates!

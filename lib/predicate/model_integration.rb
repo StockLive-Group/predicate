@@ -50,6 +50,11 @@ module Predicate
       def load_predicates!(force_reload: false)
         return @predicate_instance if @predicate_instance && !force_reload
 
+        # model_name may not be available during class definition
+        # (e.g. Class.new blocks where methods are defined after include).
+        # Predicates will be lazy-loaded on first use via method_missing.
+        return nil unless respond_to?(:model_name)
+
         # Extract entity name flexibly from different model_name types
         entity_name = extract_entity_name(model_name)
 
@@ -242,6 +247,9 @@ module Predicate
       # Check if this looks like a predicate method (ends with ?)
       if method_name.to_s.end_with?('?') && args.empty?
         predicate_name = method_name.to_s.chomp('?').to_sym
+
+        # Lazy-load predicates on first use if not yet loaded
+        load_predicates! unless predicates_loaded?
 
         # Only try to call if predicates are loaded and predicate exists
         if predicates_loaded? && predicate?(predicate_name)

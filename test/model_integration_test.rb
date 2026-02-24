@@ -74,8 +74,8 @@ class ModelIntegrationTest < Minitest::Test
   def test_load_predicates_with_existing_predicates
     # Define predicates first
     Predicate.define(@entity) do
-      has_title { |s| present?(s[:title]) }
-      has_description { |s| present?(s[:description]) }
+      has_title { |s| is_present?(s[:title]) }
+      has_description { |s| is_present?(s[:description]) }
     end
 
     # Mock the predicate file path to return a non-existent file
@@ -133,8 +133,8 @@ class ModelIntegrationTest < Minitest::Test
   def test_call_predicate_with_loaded_predicates
     # Define predicates
     Predicate.define(@entity) do
-      has_title { |s| present?(s[:title]) }
-      has_description { |s| present?(s[:description]) }
+      has_title { |s| is_present?(s[:title]) }
+      has_description { |s| is_present?(s[:description]) }
     end
 
     # Mock the predicate file to exist and load the predicates
@@ -142,7 +142,7 @@ class ModelIntegrationTest < Minitest::Test
       # Create a temporary predicate file
       temp_file = "/tmp/#{entity_name}_predicate.rb"
       File.write(temp_file,
-                 "Predicate.define(:#{entity_name}) do\n  has_title { |s| present?(s[:title]) }\n  has_description { |s| present?(s[:description]) }\nend")
+                 "Predicate.define(:#{entity_name}) do\n  has_title { |s| is_present?(s[:title]) }\n  has_description { |s| is_present?(s[:description]) }\nend")
       temp_file
     end
 
@@ -165,15 +165,15 @@ class ModelIntegrationTest < Minitest::Test
   def test_method_missing_predicate_calls
     # Define predicates
     Predicate.define(@entity) do
-      has_title { |s| present?(s[:title]) }
-      has_description { |s| present?(s[:description]) }
+      has_title { |s| is_present?(s[:title]) }
+      has_description { |s| is_present?(s[:description]) }
     end
 
     # Mock the predicate file
     @model_class.define_singleton_method(:predicate_file_path) do |entity_name|
       temp_file = "/tmp/#{entity_name}_predicate.rb"
       File.write(temp_file,
-                 "Predicate.define(:#{entity_name}) do\n  has_title { |s| present?(s[:title]) }\n  has_description { |s| present?(s[:description]) }\nend")
+                 "Predicate.define(:#{entity_name}) do\n  has_title { |s| is_present?(s[:title]) }\n  has_description { |s| is_present?(s[:description]) }\nend")
       temp_file
     end
 
@@ -300,14 +300,14 @@ class ModelIntegrationTest < Minitest::Test
   def test_predicate_stats
     # Define predicates
     Predicate.define(@entity) do
-      has_title { |s| present?(s[:title]) }
+      has_title { |s| is_present?(s[:title]) }
     end
 
     # Mock the predicate file
     @model_class.define_singleton_method(:predicate_file_path) do |entity_name|
       temp_file = "/tmp/#{entity_name}_predicate.rb"
       File.write(temp_file,
-                 "Predicate.define(:#{entity_name}) do\n  has_title { |s| present?(s[:title]) }\nend")
+                 "Predicate.define(:#{entity_name}) do\n  has_title { |s| is_present?(s[:title]) }\nend")
       temp_file
     end
 
@@ -329,14 +329,14 @@ class ModelIntegrationTest < Minitest::Test
   def test_clear_predicate_cache
     # Define predicates
     Predicate.define(@entity) do
-      has_title { |s| present?(s[:title]) }
+      has_title { |s| is_present?(s[:title]) }
     end
 
     # Mock the predicate file
     @model_class.define_singleton_method(:predicate_file_path) do |entity_name|
       temp_file = "/tmp/#{entity_name}_predicate.rb"
       File.write(temp_file,
-                 "Predicate.define(:#{entity_name}) do\n  has_title { |s| present?(s[:title]) }\nend")
+                 "Predicate.define(:#{entity_name}) do\n  has_title { |s| is_present?(s[:title]) }\nend")
       temp_file
     end
 
@@ -389,10 +389,10 @@ class ModelIntegrationTest < Minitest::Test
 
     # Check that content includes expected elements (without ? suffix)
     assert_includes content, 'Predicate.define(:test_model) do'
-    assert_includes content, 'has_title { |s| present?(s[:title]) }'
-    assert_includes content, 'has_description { |s| present?(s[:description]) }'
-    assert_includes content, 'has_user { |s| present?(s[:user]) }'
-    assert_includes content, 'has_comments { |s| present?(s[:comments]) }'
+    assert_includes content, 'has_title { |s| is_present?(s[:title]) }'
+    assert_includes content, 'has_description { |s| is_present?(s[:description]) }'
+    assert_includes content, 'has_user { |s| is_present?(s[:user]) }'
+    assert_includes content, 'has_comments { |s| is_present?(s[:comments]) }'
 
     # Check that it excludes system fields
     refute_includes content, 'has_id'
@@ -427,7 +427,7 @@ class ModelIntegrationTest < Minitest::Test
     # Check content (without ? suffix)
     file_content = File.read(output_path)
     assert_includes file_content, 'Predicate.define(:test_model) do'
-    assert_includes file_content, 'has_title { |s| present?(s[:title]) }'
+    assert_includes file_content, 'has_title { |s| is_present?(s[:title]) }'
 
     # Clean up
     FileUtils.rm_f(output_path)
@@ -463,14 +463,14 @@ class ModelIntegrationTest < Minitest::Test
   def test_performance_with_caching
     # Define predicates
     Predicate.define(@entity) do
-      expensive_predicate { |s| present?(s[:title]) }
+      expensive_predicate { |s| is_present?(s[:title]) }
     end
 
     # Mock the predicate file
     @model_class.define_singleton_method(:predicate_file_path) do |entity_name|
       temp_file = "/tmp/#{entity_name}_predicate.rb"
       File.write(temp_file,
-                 "Predicate.define(:#{entity_name}) do\n  expensive_predicate { |s| present?(s[:title]) }\nend")
+                 "Predicate.define(:#{entity_name}) do\n  expensive_predicate { |s| is_present?(s[:title]) }\nend")
       temp_file
     end
 
@@ -492,16 +492,16 @@ class ModelIntegrationTest < Minitest::Test
   def test_complex_predicate_scenarios
     # Define complex predicates
     Predicate.define(@entity) do
-      has_title { |s| present?(s[:title]) }
-      has_description { |s| present?(s[:description]) }
-      has_media { |s| present?(s[:media_attachment_ids]) }
+      has_title { |s| is_present?(s[:title]) }
+      has_description { |s| is_present?(s[:description]) }
+      has_media { |s| is_present?(s[:media_attachment_ids]) }
 
       wizard_complete do |s|
         all_of(:has_title, :has_description, :has_media).call(s)
       end
 
       section :validation do
-        required_fields { |s| present?(s[:title]) && present?(s[:description]) }
+        required_fields { |s| is_present?(s[:title]) && is_present?(s[:description]) }
         valid_format { |s| matches?(s[:title], /\A\w+\z/) }
       end
     end
@@ -511,16 +511,16 @@ class ModelIntegrationTest < Minitest::Test
       temp_file = "/tmp/#{entity_name}_predicate.rb"
       File.write(temp_file, <<~RUBY)
         Predicate.define(:#{entity_name}) do
-          has_title { |s| present?(s[:title]) }
-          has_description { |s| present?(s[:description]) }
-          has_media { |s| present?(s[:media_attachment_ids]) }
+          has_title { |s| is_present?(s[:title]) }
+          has_description { |s| is_present?(s[:description]) }
+          has_media { |s| is_present?(s[:media_attachment_ids]) }
         #{'  '}
           wizard_complete { |s|#{' '}
             all_of(:has_title, :has_description, :has_media).call(s)
           }
         #{'  '}
           section :validation do
-            required_fields { |s| present?(s[:title]) && present?(s[:description]) }
+            required_fields { |s| is_present?(s[:title]) && is_present?(s[:description]) }
             valid_format { |s| matches?(s[:title], /\\A\\w+\\z/) }
           end
         end

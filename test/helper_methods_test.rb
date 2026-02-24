@@ -3,7 +3,7 @@
 require_relative 'test_helper'
 
 # HELPER METHODS TEST
-# Tests for Core helper methods (present?, blank?, is_one_of_values?, etc.)
+# Tests for Core helper methods (is_present?, is_blank?, is_one_of_values?, etc.)
 #
 # Features tested:
 # - All helpers work without ActiveSupport
@@ -88,36 +88,36 @@ class HelperMethodsTest < Minitest::Test
   end
 
   # ============================================================================
-  # present? and blank? tests
+  # is_present? and is_blank? tests
   # ============================================================================
 
   def test_present_with_values
-    assert @core.present?('hello')
-    assert @core.present?(123)
-    assert @core.present?([1, 2, 3])
-    assert @core.present?({ a: 1 })
+    assert @core.is_present?('hello')
+    assert @core.is_present?(123)
+    assert @core.is_present?([1, 2, 3])
+    assert @core.is_present?({ a: 1 })
   end
 
   def test_present_with_blank_values
-    refute @core.present?(nil)
-    refute @core.present?('')
-    refute @core.present?('   ')
-    refute @core.present?([])
-    refute @core.present?({})
+    refute @core.is_present?(nil)
+    refute @core.is_present?('')
+    refute @core.is_present?('   ')
+    refute @core.is_present?([])
+    refute @core.is_present?({})
   end
 
   def test_blank_with_values
-    refute @core.blank?('hello')
-    refute @core.blank?(123)
-    refute @core.blank?([1, 2, 3])
+    refute @core.is_blank?('hello')
+    refute @core.is_blank?(123)
+    refute @core.is_blank?([1, 2, 3])
   end
 
   def test_blank_with_blank_values
-    assert @core.blank?(nil)
-    assert @core.blank?('')
-    assert @core.blank?('   ')
-    assert @core.blank?([])
-    assert @core.blank?({})
+    assert @core.is_blank?(nil)
+    assert @core.is_blank?('')
+    assert @core.is_blank?('   ')
+    assert @core.is_blank?([])
+    assert @core.is_blank?({})
   end
 
   # ============================================================================

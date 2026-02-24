@@ -22,7 +22,7 @@ class CoreTest < Minitest::Test
 
   # Test basic predicate functionality
   def test_add_and_call_predicate
-    @core.add_predicate(:has_media) { |s| @core.present?(s[:media_attachment_ids]) }
+    @core.add_predicate(:has_media) { |s| @core.is_present?(s[:media_attachment_ids]) }
 
     assert_predicate_exists(@core, :has_media)
     assert_predicate_true(@core, :has_media, @state)
@@ -30,14 +30,14 @@ class CoreTest < Minitest::Test
   end
 
   def test_predicate_with_nil_state
-    @core.add_predicate(:has_title) { |s| @core.present?(s[:title]) }
+    @core.add_predicate(:has_title) { |s| @core.is_present?(s[:title]) }
 
     assert_predicate_false(@core, :has_title, test_state(title: nil))
     assert_predicate_true(@core, :has_title, test_state(title: 'Test Title'))
   end
 
   def test_predicate_with_empty_array
-    @core.add_predicate(:has_items) { |s| @core.present?(s[:items]) && !s[:items].empty? }
+    @core.add_predicate(:has_items) { |s| @core.is_present?(s[:items]) && !s[:items].empty? }
 
     assert_predicate_false(@core, :has_items, test_state(items: []))
     assert_predicate_false(@core, :has_items, test_state(items: nil))
@@ -46,9 +46,9 @@ class CoreTest < Minitest::Test
 
   def test_predicate_with_complex_logic
     @core.add_predicate(:wizard_complete) do |s|
-      @core.present?(s[:media_attachment_ids]) &&
-        @core.present?(s[:title]) &&
-        @core.present?(s[:description])
+      @core.is_present?(s[:media_attachment_ids]) &&
+        @core.is_present?(s[:title]) &&
+        @core.is_present?(s[:description])
     end
 
     assert_predicate_true(@core, :wizard_complete, @state)
@@ -101,7 +101,7 @@ class CoreTest < Minitest::Test
   # Test section predicates
   def test_section_predicates
     @core.add_section(:media) do |predicates|
-      predicates[:has_media] = ->(s) { @core.present?(s[:media_attachment_ids]) }
+      predicates[:has_media] = ->(s) { @core.is_present?(s[:media_attachment_ids]) }
       predicates[:has_minimum_images] = ->(s) { s[:media_attachment_ids].length >= 1 }
       predicates[:complete] = lambda { |s|
         predicates[:has_media].call(s) && predicates[:has_minimum_images].call(s)
@@ -117,7 +117,7 @@ class CoreTest < Minitest::Test
   def test_call_section_predicate
     @core.add_section(:age) do |predicates|
       predicates[:has_age_range] = lambda { |s|
-        @core.present?(s[:age_range_upper]) && @core.present?(s[:age_range_lower])
+        @core.is_present?(s[:age_range_upper]) && @core.is_present?(s[:age_range_lower])
       }
       predicates[:age_range_valid] = lambda { |s|
         s[:age_range_upper] > s[:age_range_lower]
@@ -147,19 +147,19 @@ class CoreTest < Minitest::Test
 
   # Test helper methods
   def test_present_helper
-    assert @core.present?('test')
-    assert @core.present?([1, 2, 3])
-    refute @core.present?(nil)
-    refute @core.present?('')
-    refute @core.present?([])
+    assert @core.is_present?('test')
+    assert @core.is_present?([1, 2, 3])
+    refute @core.is_present?(nil)
+    refute @core.is_present?('')
+    refute @core.is_present?([])
   end
 
   def test_blank_helper
-    assert @core.blank?(nil)
-    assert @core.blank?('')
-    assert @core.blank?([])
-    refute @core.blank?('test')
-    refute @core.blank?([1, 2, 3])
+    assert @core.is_blank?(nil)
+    assert @core.is_blank?('')
+    assert @core.is_blank?([])
+    refute @core.is_blank?('test')
+    refute @core.is_blank?([1, 2, 3])
   end
 
   def test_not_helper

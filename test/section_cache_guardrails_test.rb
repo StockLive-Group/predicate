@@ -27,7 +27,7 @@ class SectionCacheGuardrailsTest < Minitest::Test
   def test_section_predicates_track_cache_stats
     Predicate.define(:test) do
       section :validation do
-        has_title { |s| present?(s[:title]) }
+        has_title { |s| is_present?(s[:title]) }
       end
     end
 
@@ -110,7 +110,7 @@ class SectionCacheGuardrailsTest < Minitest::Test
   def test_section_predicates_in_performance_stats
     Predicate.define(:test) do
       section :validation do
-        has_title { |s| present?(s[:title]) }
+        has_title { |s| is_present?(s[:title]) }
       end
     end
 
