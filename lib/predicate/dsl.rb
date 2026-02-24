@@ -8,7 +8,7 @@ module Predicate
   #
   # Features::
   # * `method_missing` for predicate definitions
-  # * Helper-method delegation (e.g., `present?`, `blank?`)
+  # * Helper-method delegation (e.g., `is_present?`, `is_blank?`)
   # * Section-based predicate grouping
   # * Auto-generation of predicate methods
   # * Rails validation detection and helper generation
@@ -16,11 +16,11 @@ module Predicate
   #
   # Usage::
   #   Predicate.define(:assessment) do
-  #     has_media { |s| present?(s[:media_attachment_ids]) }
-  #     has_title { |s| present?(s[:title]) }
+  #     has_media { |s| is_present?(s[:media_attachment_ids]) }
+  #     has_title { |s| is_present?(s[:title]) }
   #
   #     section :validation do
-  #       required_fields { |s| present?(s[:name]) && present?(s[:email]) }
+  #       required_fields { |s| is_present?(s[:name]) && is_present?(s[:email]) }
   #       valid_format    { |s| matches?(s[:email], EMAIL_REGEXP) }
   #     end
   #
@@ -71,7 +71,7 @@ module Predicate
       # @param block [Proc] Block containing section predicates
       # @example
       #   section :validation do
-      #     required_fields { |s| present?(s[:name]) && present?(s[:email]) }
+      #     required_fields { |s| is_present?(s[:name]) && is_present?(s[:email]) }
       #     valid_format { |s| matches?(s[:email], EMAIL_REGEXP) }
       #   end
       def section(section_name, &block)
@@ -244,14 +244,14 @@ module Predicate
         fields.each do |field|
           predicate_name = :"has_#{field}"
           define_predicate(predicate_name) do |state|
-            @core.present?(state[field])
+            @core.is_present?(state[field])
           end
         end
 
         # Generate combined predicate
         if fields.length > 1
           define_predicate(:required_fields) do |state|
-            fields.all? { |field| @core.present?(state[field]) }
+            fields.all? { |field| @core.is_present?(state[field]) }
           end
         end
 

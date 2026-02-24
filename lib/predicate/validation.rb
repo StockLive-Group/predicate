@@ -5,10 +5,24 @@ module Predicate
   #
   # A collection of pure functions for validating values.
   # These are mixed into Predicate::Core and available in the DSL.
+  #
+  # Note: Helper names use the +is_+ prefix (e.g. +is_present?+, +is_blank?+)
+  # to avoid conflicts with ActiveSupport's +Object#present?+ and +Object#blank?+
+  # which are zero-argument methods defined on every object in Rails.
   module Validation
+    # Check if a value is present (not nil, not empty, not whitespace-only).
+    #
+    # Named +is_present?+ to avoid collision with ActiveSupport's +Object#present?+
+    # which takes no arguments and checks +self+.
+    #
     # @param value [Object] The value to check
     # @return [Boolean] True if value is present (not nil or empty)
-    def present?(value)
+    # @example
+    #   is_present?("hello")  # => true
+    #   is_present?(nil)      # => false
+    #   is_present?("")       # => false
+    #   is_present?("  ")     # => false
+    def is_present?(value)
       return false if value.nil?
       return false if value.respond_to?(:empty?) && value.empty?
       # Handle whitespace-only strings
@@ -17,9 +31,19 @@ module Predicate
       true
     end
 
+    # Check if a value is blank (nil, empty, or whitespace-only).
+    #
+    # Named +is_blank?+ to avoid collision with ActiveSupport's +Object#blank?+
+    # which takes no arguments and checks +self+.
+    #
     # @param value [Object] The value to check
     # @return [Boolean] True if value is blank (nil or empty)
-    def blank?(value)
+    # @example
+    #   is_blank?(nil)     # => true
+    #   is_blank?("")      # => true
+    #   is_blank?("  ")    # => true
+    #   is_blank?("hello") # => false
+    def is_blank?(value)
       return true if value.nil?
       return true if value.respond_to?(:empty?) && value.empty?
       # Handle whitespace-only strings

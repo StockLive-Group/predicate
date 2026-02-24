@@ -18,13 +18,13 @@ require_relative 'predicate/model_integration'
 # * Automatic memoization and caching
 # * Rails auto-detection (validations, scopes, associations)
 # * Section-based predicate grouping
-# * English-like helper methods (`present?`, `blank?`, `not?`)
+# * English-like helper methods (`is_present?`, `is_blank?`, `not?`)
 # * Performance monitoring and statistics
 # * Model auto-definition with `method_missing`
 #
 # Usage::
 #   Predicate.define(:assessment) do
-#     has_media { |s| s[:media_attachment_ids].present? }
+#     has_media { |s| is_present?(s[:media_attachment_ids]) }
 #     wizard_complete { |s| has_media(s) && has_title(s) }
 #   end
 #
@@ -43,16 +43,16 @@ module Predicate
   # @return [Predicate::Core] The predicate instance
   # @example
   #   Predicate.define(:assessment) do
-  #     has_media { |s| present?(s[:media_attachment_ids]) }
+  #     has_media { |s| is_present?(s[:media_attachment_ids]) }
   #     wizard_complete { |s| has_media(s) && has_title(s) }
   #   end
   # @example With TTL
   #   Predicate.define(:assessment, cache_ttl: 5.minutes) do
-  #     has_media { |s| present?(s[:media_attachment_ids]) }
+  #     has_media { |s| is_present?(s[:media_attachment_ids]) }
   #   end
   # @example With thread-safety
   #   Predicate.define(:assessment, thread_safe: true, cache_ttl: 5.minutes) do
-  #     has_media { |s| present?(s[:media_attachment_ids]) }
+  #     has_media { |s| is_present?(s[:media_attachment_ids]) }
   #   end
   def self.define(entity, cache_ttl: nil, thread_safe: false, &block)
     builder = DSL::Builder.new(entity, nil, cache_ttl: cache_ttl, thread_safe: thread_safe)

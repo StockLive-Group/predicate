@@ -15,9 +15,9 @@ module Predicate
   #
   # Usage::
   #   Predicate.define(:assessment) do
-  #     has_media        { |s| present?(s[:media_attachment_ids]) }
-  #     has_title        { |s| present?(s[:title]) }
-  #     has_description  { |s| present?(s[:description]) }
+  #     has_media        { |s| is_present?(s[:media_attachment_ids]) }
+  #     has_title        { |s| is_present?(s[:title]) }
+  #     has_description  { |s| is_present?(s[:description]) }
   #
   #     content_ready { |s| all_of(:has_title, :has_description).call(s) }
   #     any_content   { |s| any_of(:has_title, :has_description).call(s) }
@@ -217,7 +217,7 @@ module Predicate
       # @param state [Hash] The state to evaluate
       # @return [Boolean] The result of the predicate or default value
       def call(state)
-        return @default_value unless @core.present?(state[@field])
+        return @default_value unless @core.is_present?(state[@field])
 
         resolve_and_execute(@predicate, state)
       end
@@ -246,7 +246,7 @@ module Predicate
       # @param state [Hash] The state to evaluate
       # @return [Boolean] The result of the predicate or default value
       def call(state)
-        return @default_value unless @core.blank?(state[@field])
+        return @default_value unless @core.is_blank?(state[@field])
 
         resolve_and_execute(@predicate, state)
       end

@@ -379,7 +379,7 @@ module Predicate
         model_class.attribute_names.map do |attr|
           next if %w[id created_at updated_at].include?(attr.to_s)
 
-          "  has_#{attr} { |s| present?(s[:#{attr}]) }"
+          "  has_#{attr} { |s| is_present?(s[:#{attr}]) }"
         end.compact
       end
 
@@ -387,7 +387,7 @@ module Predicate
         return [] unless model_class.respond_to?(:reflect_on_all_associations)
 
         model_class.reflect_on_all_associations.map do |assoc|
-          "  has_#{assoc.name} { |s| present?(s[:#{assoc.name}]) }"
+          "  has_#{assoc.name} { |s| is_present?(s[:#{assoc.name}]) }"
         end
       end
     end

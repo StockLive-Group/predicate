@@ -49,7 +49,7 @@ module Predicate
     # @param name [Symbol, String] The predicate name
     # @param block [Proc] The predicate logic
     # @example
-    #   core.add_predicate(:has_media) { |s| s[:media_attachment_ids].present? }
+    #   core.add_predicate(:has_media) { |s| is_present?(s[:media_attachment_ids]) }
     def add_predicate(name, &block)
       raise InvalidPredicate, 'Predicate block is required' unless block_given?
 
@@ -62,7 +62,7 @@ module Predicate
     # @param block [Proc] Block containing section predicates
     # @example
     #   core.add_section(:media) do |predicates|
-    #     predicates[:has_media] = ->(s) { s[:media_attachment_ids].present? }
+    #     predicates[:has_media] = ->(s) { is_present?(s[:media_attachment_ids]) }
     #     predicates[:has_minimum_images] = ->(s) { s[:media_attachment_ids].length >= 1 }
     #   end
     def add_section(section_name, &block)
