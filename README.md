@@ -1,3 +1,31 @@
+
+> **Status:** Early-stage gem (production-running) • **Origin:** Extracted from StockLive • **Focus:** Isolate decision logic for complex, interlinked flows
+
+---
+
+## ⚠️ Early-stage / Extracted-from-Production Notice
+
+Predicate is an **early-stage library** that was **extracted from the StockLive codebase** as part of a broader effort to pull critical “decision logic” out of a large Rails app and into **isolated, composable layers**.
+
+In StockLive we had **big, heavily interlinked, dependency-heavy long-form workflows** (wizards, conditional steps, permission gates, grouped validations). Over time, this logic became **scattered across controllers, forms, policies, models, and views**, which made change risk high and testing slow.
+
+This gem is one piece of that extraction series:
+- **Predicate layer** (this repository): centralized boolean rules / readiness / gating
+- Related extractions (separate repos or upcoming): **wizard flow**, **permissions**, and **grouping** layers
+
+**Important:** Although Predicate is **running in production**, the public gem is still **evolving**:
+- APIs and DSL may change
+- documentation may lag behind features
+- edge-cases are being hardened as more patterns are extracted
+
+**AI-assisted, but human-designed:** AI helped accelerate implementation and documentation, but the architecture and patterns were **designed first on paper** and validated against real production needs.
+
+If you adopt it, do so with the expectation that you may need to:
+- pin versions
+- review upgrades carefully
+- contribute fixes/patterns as new real-world cases surface
+
+
 # Predicate Library
 
 A lightweight, high-performance predicate evaluation library for Ruby/Rails applications with automatic caching, TTL support, and thread-safe operations.
