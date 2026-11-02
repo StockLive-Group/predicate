@@ -3,7 +3,10 @@
 require_relative 'lib/predicate/version'
 
 Gem::Specification.new do |spec|
-  spec.name          = 'predicate'
+  # The RubyGems name differs from the library name: `predicate` on RubyGems
+  # belongs to an unrelated project. The require path and the `Predicate`
+  # constant are unchanged; lib/predicate-rb.rb bridges Bundler.require.
+  spec.name          = 'predicate-rb'
   spec.version       = Predicate::VERSION
   spec.authors       = ['Nauman Tariq']
   spec.email         = ['hello@nauman.one']
@@ -28,7 +31,9 @@ Gem::Specification.new do |spec|
   spec.license       = 'MIT'
   spec.required_ruby_version = '>= 3.0.0'
 
-  # Specify which files should be added to the gem when it is released
+  # IMPORTANT: an explicit allowlist, never `git ls-files` and never Dir["**/*"].
+  # This is a shipping control, not a packaging detail — it is what keeps
+  # everything outside these paths out of the published gem. Do not "tidy" it.
   spec.files = Dir[
     'lib/**/*.rb',
     'README.md',
@@ -48,7 +53,6 @@ Gem::Specification.new do |spec|
     'source_code_uri' => 'https://github.com/StockLive-Group/predicate',
     'changelog_uri' => 'https://github.com/StockLive-Group/predicate/blob/main/CHANGELOG.md',
     'bug_tracker_uri' => 'https://github.com/StockLive-Group/predicate/issues',
-    'documentation_uri' => 'https://github.com/StockLive-Group/predicate/blob/main/README.md',
-    'rubygems_mfa_required' => 'true'
+    'documentation_uri' => 'https://github.com/StockLive-Group/predicate/blob/main/README.md'
   }
 end

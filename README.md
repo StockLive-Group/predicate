@@ -67,14 +67,16 @@ front-end (JSON endpoints or server-rendered flags). The goals:
 
 ### As a Gem
 
+Published on RubyGems as `predicate-rb` (the name `predicate` belongs to an
+unrelated gem). The library is still required as `predicate`.
+
 Add to your Gemfile:
 
 ```ruby
-# From GitHub
-gem 'predicate', git: 'git@github.com:StockLive-Group/predicate.git', branch: 'main'
+gem 'predicate-rb'
 
 # Or from a local path during development
-# gem 'predicate', path: '../75-predicate'
+# gem 'predicate-rb', path: '../predicate'
 ```
 
 Then run:

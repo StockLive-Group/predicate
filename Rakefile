@@ -1,9 +1,7 @@
 # frozen_string_literal: true
 
+require 'bundler/gem_tasks' # build / install / release
 require 'rake/testtask'
-
-# Default task: run all tests
-task default: :test
 
 # Main test task - runs all tests
 Rake::TestTask.new(:test) do |t|
@@ -94,12 +92,34 @@ task :clean do
   puts 'Cleaned test artifacts'
 end
 
-desc 'Build gem'
-task :build do
-  system 'gem build predicate.gemspec'
+# ── the boundary check ────────────────────────────────────────────────────
+#
+# Every library file lives inside `module Predicate`. A file that does not is
+# declaring something in the host's global namespace. The distribution loader
+# (lib/predicate-rb.rb) is the one exception: it only requires the library.
+desc 'Fail if a library file declares anything outside module Predicate'
+task :boundary do
+  problems = Dir['lib/**/*.rb'].reject { |file| file == 'lib/predicate-rb.rb' }
+                               .reject { |file| File.read(file).include?('module Predicate') }
+  if problems.any?
+    problems.each { |file| warn "  #{file}: no `module Predicate`" }
+    abort 'BOUNDARY FAILED — see above.'
+  end
+  puts 'boundary: clean — every library file is inside module Predicate'
 end
 
-desc 'Install gem locally'
-task install: :build do
-  system 'gem install predicate-*.gem'
+desc 'Fail if a GitHub workflow file is not valid YAML'
+task :workflows do
+  require 'yaml'
+  Dir['.github/workflows/*.yml'].each do |file|
+    YAML.load_file(file)
+    puts "workflow ok: #{file}"
+  rescue StandardError => e
+    abort "INVALID WORKFLOW #{file}: #{e.message}"
+  end
 end
+
+# `workflows` is in the gate because a broken workflow fails at 0s with no test
+# output — the local hook runs the suite, so it cannot catch a CI file that
+# never starts.
+task default: %i[boundary workflows test]

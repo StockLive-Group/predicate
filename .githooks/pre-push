@@ -1,0 +1,30 @@
+#!/usr/bin/env bash
+# Local-first CI gate.
+#
+# The gate runs HERE, before the push — not on a runner after it. A red push is
+# blocked rather than reported.
+#
+# Enable once per clone:   git config core.hooksPath .githooks
+# Bypass in an emergency:  git push --no-verify   (say so in the commit)
+set -euo pipefail
+
+# Docs-only pushes skip the suite — nothing executable changed.
+range="origin/main..HEAD"
+if git rev-parse --verify -q origin/main >/dev/null; then
+  changed="$(git diff --name-only $range || true)"
+else
+  changed="$(git ls-files)"
+fi
+if [ -n "$changed" ] && ! echo "$changed" | grep -qvE '^(docs/|README|EXAMPLES|CHANGELOG|LICENSE|RELEASING|\.githooks/)'; then
+  echo "pre-push: docs-only change, skipping the suite"
+  exit 0
+fi
+
+echo "pre-push: boundary + workflows + suite"
+
+ruby -e 'require "rake"; load "Rakefile"; Rake::Task[:default].invoke' || {
+  echo "pre-push: BLOCKED — the gate is red. Fix it, or push with --no-verify and say why."
+  exit 1
+}
+
+echo "pre-push: green"

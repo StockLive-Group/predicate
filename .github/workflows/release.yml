@@ -1,0 +1,81 @@
+name: Release to RubyGems
+
+# Triggered by pushing a version tag (e.g. v1.2.0). Verifies the tag matches
+# Predicate::VERSION, runs the full gate, builds the gem, and pushes it.
+#
+# No API key is stored anywhere. RubyGems trusted publishing exchanges this
+# workflow's GitHub OIDC token for a short-lived push credential. The trusted
+# publisher on rubygems.org binds exactly:
+#   owner StockLive-Group · repository predicate · workflow release.yml
+#   gem predicate-rb
+# Renaming this file breaks publishing until the binding is updated.
+#
+# To cut a release, follow RELEASING.md — do not gem push by hand.
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    name: Build + publish ${{ github.ref_name }}
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "4.0"
+          bundler-cache: true
+
+      - name: Verify the tag matches Predicate::VERSION
+        run: |
+          tag="${GITHUB_REF_NAME#v}"
+          gem_version=$(ruby -e 'require_relative "lib/predicate/version"; puts Predicate::VERSION')
+          if [ "$tag" != "$gem_version" ]; then
+            echo "::error::Tag ($tag) does not match Predicate::VERSION ($gem_version)"
+            exit 1
+          fi
+          echo "Tag $tag matches Predicate::VERSION $gem_version ✓"
+
+      - name: Verify the CHANGELOG mentions this version
+        run: |
+          tag="${GITHUB_REF_NAME#v}"
+          if ! grep -q "\[$tag\]\|## $tag" CHANGELOG.md; then
+            echo "::error::CHANGELOG.md has no entry for $tag — a release nobody can read is not a release"
+            exit 1
+          fi
+          echo "CHANGELOG entry for $tag found ✓"
+
+      - name: Gate (boundary + workflows + suite)
+        run: bundle exec rake
+
+      - name: Build gem
+        run: bundle exec rake build
+
+      - name: Verify the package contents
+        run: |
+          gem spec pkg/predicate-rb-*.gem files | tee /dev/stderr | grep -qE '^- (test|docs|\.github)/' && {
+            echo "::error::development paths leaked into the package"
+            exit 1
+          }
+          echo "package contains only the allowlisted paths ✓"
+
+      - name: Exchange the OIDC token for a RubyGems credential
+        uses: rubygems/configure-rubygems-credentials@v1.0.0
+
+      - name: Push to RubyGems
+        run: gem push pkg/predicate-rb-*.gem

@@ -1,0 +1,33 @@
+# Two gates cover local maintainers and public contributors.
+#
+#   1. .githooks/pre-push — the LOCAL gate. Runs before a push, so a red suite
+#      never leaves the machine.
+#
+#   2. This workflow — the PUBLIC gate. Runs on every push and PR because
+#      contributors do not have our git hooks.
+name: CI
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  gate:
+    strategy:
+      fail-fast: false
+      matrix:
+        ruby: ["3.2", "3.4", "4.0"]
+    runs-on: ubuntu-latest
+    name: Ruby ${{ matrix.ruby }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: ${{ matrix.ruby }}
+          bundler-cache: true
+      - name: Boundary check, workflows and suite
+        run: bundle exec rake
