@@ -26,5 +26,8 @@ end
 
 # Optional: Code coverage
 group :test do
+  # Bundled gems (not default gems) since Ruby 4.0; the suite requires them.
+  gem 'benchmark', require: false
+  gem 'ostruct', require: false
   gem 'simplecov', '~> 0.22', require: false
 end
