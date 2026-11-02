@@ -74,8 +74,29 @@ jobs:
           }
           echo "package contains only the allowlisted paths ✓"
 
+      # Done by hand rather than with rubygems/configure-rubygems-credentials:
+      # creating a gem's first version through a pending trusted publisher needs
+      # the `owner` parameter (the RubyGems account that will own the gem), and
+      # no released version of that action sends it. For later releases the gem
+      # already exists and RubyGems records the owner only with the key.
       - name: Exchange the OIDC token for a RubyGems credential
-        uses: rubygems/configure-rubygems-credentials@v1.0.0
+        env:
+          RUBYGEMS_OWNER: stocklive
+        run: |
+          jwt=$(curl -fsS -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
+            "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=rubygems.org" | jq -r .value)
+          response=$(jq -n --arg jwt "$jwt" --arg owner "$RUBYGEMS_OWNER" '{jwt: $jwt, owner: $owner}' |
+            curl -sS -w '\n%{http_code}' -X POST -H 'Content-Type: application/json' --data @- \
+              https://rubygems.org/api/v1/oidc/trusted_publisher/exchange_token)
+          status=$(tail -n1 <<<"$response"); body=$(sed '$d' <<<"$response")
+          key=$(jq -r '.rubygems_api_key // empty' <<<"$body" 2>/dev/null || true)
+          if [ "$status" != "201" ] || [ -z "$key" ]; then
+            echo "::error::Trusted publisher exchange failed (HTTP $status): $body"
+            exit 1
+          fi
+          echo "::add-mask::$key"
+          echo "GEM_HOST_API_KEY=$key" >> "$GITHUB_ENV"
+          echo "Short-lived push credential issued ✓"
 
       - name: Push to RubyGems
         run: gem push pkg/predicate-rb-*.gem
